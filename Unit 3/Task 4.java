@@ -1,66 +1,48 @@
 import java.util.*;
 
-class UndergroundSystem {
+class BrowserHistory {
 
-    HashMap<Integer, Pair> checkInMap;
-    HashMap<String, double[]> routeMap;
+    ArrayList<String> history;
+    int current;
 
-    public UndergroundSystem() {
-        checkInMap = new HashMap<>();
-        routeMap = new HashMap<>();
+    public BrowserHistory(String homepage) {
+        history = new ArrayList<>();
+        history.add(homepage);
+        current = 0;
     }
 
-    public void checkIn(int id, String stationName, int t) {
-        checkInMap.put(id, new Pair(stationName, t));
-    }
+    public void visit(String url) {
 
-    public void checkOut(int id, String stationName, int t) {
-
-        Pair p = checkInMap.get(id);
-
-        String start = p.station;
-        int startTime = p.time;
-
-        int travelTime = t - startTime;
-
-        String route = start + "->" + stationName;
-
-        if (!routeMap.containsKey(route)) {
-            routeMap.put(route, new double[]{0, 0});
+        // Remove forward history
+        while (history.size() > current + 1) {
+            history.remove(history.size() - 1);
         }
 
-        double[] data = routeMap.get(route);
-
-        data[0] += travelTime;
-        data[1] += 1;
-
-        checkInMap.remove(id);
+        history.add(url);
+        current++;
     }
 
-    public double getAverageTime(String startStation, String endStation) {
+    public String back(int steps) {
 
-        String route = startStation + "->" + endStation;
+        current = Math.max(0, current - steps);
 
-        double[] data = routeMap.get(route);
-
-        return data[0] / data[1];
+        return history.get(current);
     }
 
-    class Pair {
-        String station;
-        int time;
+    public String forward(int steps) {
 
-        Pair(String station, int time) {
-            this.station = station;
-            this.time = time;
-        }
+        current = Math.min(history.size() - 1, current + steps);
+
+        return history.get(current);
     }
 }
 
 
 OUTPUT
+
+
 Input
-["UndergroundSystem","checkIn","checkIn","checkIn","checkOut","checkOut","checkOut","getAverageTime","getAverageTime","checkIn","getAverageTime","checkOut","getAverageTime"]
-[[],[45,"Leyton",3],[32,"Paradise",8],[27,"Leyton",10],[45,"Waterloo",15],[27,"Waterloo",20],[32,"Cambridge",22],["Paradise","Cambridge"],["Leyton","Waterloo"],[10,"Leyton",24],["Leyton","Waterloo"],[10,"Waterloo",38],["Leyton","Waterloo"]]
+["BrowserHistory","visit","visit","visit","back","back","forward","visit","forward","back","back"]
+[["leetcode.com"],["google.com"],["facebook.com"],["youtube.com"],[1],[1],[1],["linkedin.com"],[2],[2],[7]]
 Output
-[null,null,null,null,null,null,null,14.00000,11.00000,null,11.00000,null,12.00000]
+[null,null,null,null,"facebook.com","google.com","facebook.com",null,"linkedin.com","google.com","leetcode.com"]
